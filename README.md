@@ -72,7 +72,8 @@ OPENAI_MODEL=gpt-4o-mini  # or gpt-4o
 python Scripts/download_clinical_data.py
 ```
 
-Downloads the **AGBonnet/augmented-clinical-notes** dataset from HuggingFace.
+from datasets import load_dataset
+ds = load_dataset("AGBonnet/augmented-clinical-notes")
 
 ### Step 2: Extract Conversations
 
