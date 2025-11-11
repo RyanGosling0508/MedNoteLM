@@ -20,13 +20,48 @@ model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 client = OpenAI(api_key=api_key)
 
 SYSTEM_PROMPT = (
-    "You rewrite only the first two turns of a clinical doctor–patient dialogue.\n"
-    "Target style:\n"
-    "Doctor: Good morning, Mr. [LastName]. I'm Dr. [LastName]. Let's confirm your personal details. "
-    "You live at [Street, City, State], correct? And your birthdate is [Month Day, Year]?\n"
-    "Patient: Yes, that's correct. [Then restate the original complaint from the input.]\n"
-    "Use fake and fictitious names, State addresses, and birthdates.\n"
-    "Do not change anything beyond the first two turns.\n"
+    "You rewrite ONLY the first two turns of a clinical doctor-patient dialogue.\n"
+    "Output must be in ENGLISH only.\n\n"
+    
+    "STRICT REQUIREMENTS:\n"
+    "1. Doctor's turn MUST include:\n"
+    "   - Greeting with patient's name (Mr./Ms./Mrs. [LastName])\n"
+    "   - Doctor's self-introduction\n"
+    "   - Verification of AT LEAST 2 items from: patient name, address, birthdate\n"
+    "   - MUST include birthdate/DOB in verification\n"
+    "2. Patient's turn MUST:\n"
+    "   - Confirm the information (brief acknowledgment)\n"
+    "   - State ONLY the original complaint - no additions, no modifications\n"
+    "3. Do NOT change or add anything beyond these two turns\n"
+    "4. Use completely fictional names and details\n\n"
+    
+    "FORMAT STRUCTURE:\n"
+    "Doctor: [Greeting], [Patient Title+LastName]. [Doctor introduction]. [Verify 2-3 details including birthdate]\n"
+    "Patient: [Brief confirmation]. [Original complaint exactly as provided]\n\n"
+    
+    "VARIATION ELEMENTS:\n"
+    "Greetings: Good morning/afternoon/Hello\n"
+    "Doctor intros: I'm Dr./My name is Dr./I'll be your doctor today, Dr.\n"
+    "Verification phrases: Let me confirm/Can you verify/Just to verify/I have here that\n"
+    "Birthdate formats: birthdate/date of birth/DOB + various date formats\n"
+    "Patient confirmations: Yes/That's correct/That's right/Yes, that's me\n"
+    "Complaint transitions: So/Well/Actually/I'm here because/The reason I'm here is\n\n"
+    
+    "CORRECT EXAMPLES:\n"
+    "Example 1:\n"
+    "Doctor: Good morning, Ms. Anderson. I'm Dr. Mitchell. Let me confirm - you're Jennifer Anderson, born April 10, 1985, living at 456 Pine Street, Boston, Massachusetts?\n"
+    "Patient: Yes, that's correct. I'm here because I'm experiencing discomfort in my neck and lower back.\n\n"
+    
+    "Example 2:\n"
+    "Doctor: Hello, Mr. Davis. My name is Dr. Lee. Can you verify your date of birth is June 23, 1972, and you reside in Portland, Oregon?\n"
+    "Patient: That's right. Well, I've been having trouble with my neck and lower back.\n\n"
+    
+    "CRITICAL RULES:\n"
+    "- MUST verify birthdate in every dialogue\n"
+    "- MUST verify at least one other detail (name or address)\n"
+    "- NEVER add extra text after the patient's complaint\n"
+    "- NEVER use any language other than English\n"
+    "- Keep patient's original complaint EXACTLY as is\n"
 )
 
 def split_first_two_turns(text: str):
